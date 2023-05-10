@@ -4,21 +4,40 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "./store";
 import { login, logout } from "./userSlice";
 
+interface formErrors {
+    userName: string,
+    passWord: string,
+}
+
 const UserLogin: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [formErrors, setFormErrors] = useState<formErrors>({userName: "", passWord : ""});
 
   const isLoggedIn = useSelector((state: RootState) => state.user.isLoggedIn);
   const dispatch = useDispatch();
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setFormErrors({userName: "", passWord : ""});
     if (username && password) {
-      dispatch(login());
+        dispatch(login());
+    }
+    if(!username){
+        setFormErrors(prevFormErrors => {
+            return { ...prevFormErrors, userName: "UserName cant be empty" };
+        });   
+    }
+    if(!password){
+        setFormErrors(prevFormErrors => {
+            return { ...prevFormErrors, passWord: "Password cant be empty" };
+        });   
     }
   };
 
   const handleLogout = () => {
+    setUsername("");
+    setPassword("");
     dispatch(logout());
   };
 
@@ -43,6 +62,7 @@ const UserLogin: React.FC = () => {
               }
             />
           </div>
+          {formErrors?.userName.length !== 0 && <h6 style={{color: 'red'}}>{formErrors?.userName}</h6>}
           <div>
             <label htmlFor="password">Password:</label>
             <input
@@ -54,6 +74,7 @@ const UserLogin: React.FC = () => {
               }
             />
           </div>
+          {formErrors?.passWord.length !== 0 && <h6 style={{color: 'red'}}>{formErrors?.passWord}</h6>}
           <button type="submit">Login</button>
         </form>
       )}
